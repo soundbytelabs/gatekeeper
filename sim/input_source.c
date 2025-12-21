@@ -188,14 +188,6 @@ static bool keyboard_update(InputSource *self, uint32_t current_time_ms) {
                 ctx->auto_release_b.release_time = 0;
                 break;
 
-            case 'f': case 'F':
-                // Toggle fast/realtime mode
-                if (ctx->sim_state) {
-                    ctx->sim_state->realtime_mode = !ctx->sim_state->realtime_mode;
-                    sim_state_mark_dirty(ctx->sim_state);
-                }
-                break;
-
             case 'l':
                 // Cycle LFO preset
                 cycle_lfo_preset();

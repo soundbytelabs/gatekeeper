@@ -244,7 +244,7 @@ extern HalInterface *p_hal;
 **Implementations**:
 - Production: `src/hardware/hal.c` (real ATtiny85 hardware)
 - Tests: `test/unit/mocks/mock_hal.c` (virtual pins, controllable time)
-- Simulator: `sim/sim_hal.c` (x86 with virtual hardware)
+- Simulator: `sim/sim_hal.c` (native with virtual hardware)
 
 **Timer**: Timer0 runs in CTC mode with prescaler 8, generating a 1ms
 interrupt. Uses 16-bit counter in ISR (atomic) with 32-bit extension in
@@ -362,10 +362,9 @@ provides:
 
 **Running tests**:
 ```sh
-mkdir build_tests && cd build_tests
-cmake -DBUILD_TESTS=ON ..
-cmake --build .
-./test/unit/gatekeeper_unit_tests
+cmake --preset tests && cmake --build --preset tests
+ctest --preset tests
+# Or directly: ./build/tests/test/unit/gatekeeper_unit_tests
 ```
 
 **Test organization**: Each module has a corresponding test file in
@@ -374,27 +373,25 @@ between modules.
 
 ## Build System
 
-CMake-based build with three configurations:
+CMake-based build with three configurations using presets:
 
-**Firmware build** (default):
+**Firmware build**:
 ```sh
-mkdir build && cd build
-cmake ..
-cmake --build .
+cmake --preset firmware && cmake --build --preset firmware
 ```
-Produces `gatekeeper.hex` for flashing.
+Produces `build/firmware/gatekeeper.hex` for flashing.
 
 **Test build**:
 ```sh
-cmake -DBUILD_TESTS=ON ..
+cmake --preset tests && cmake --build --preset tests
 ```
 Compiles with host GCC, defines `TEST_BUILD` macro, links Unity.
 
 **Simulator build**:
 ```sh
-cmake -DBUILD_SIM=ON ..
+cmake --preset sim && cmake --build --preset sim
 ```
-Compiles x86 simulator with interactive terminal UI, JSON output, or batch mode.
+Compiles native simulator with interactive terminal UI, JSON output, or batch mode.
 
 **Flashing**:
 ```sh
