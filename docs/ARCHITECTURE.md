@@ -111,9 +111,13 @@ FSM hierarchy and routes events to the appropriate state machine.
 6. In PERFORM state: run mode handler with button B state
 ```
 
-**Compound Gestures**:
-- `EVT_MENU_TOGGLE`: Hold A, then hold B → enter/exit menu
-- `EVT_MODE_NEXT`: Hold B, then hold A → cycle to next mode
+**Gestures**:
+- `EVT_MENU_TOGGLE`: Hold A, then hold B → enter menu
+- `EVT_A_HOLD` (in menu): Hold A alone → exit menu immediately
+- `EVT_MODE_NEXT`: Hold A alone, then release → cycle to next mode
+
+Note: If B is pressed during an A hold, the solo A gestures (menu exit, mode change)
+are cancelled. This prevents accidental triggers when entering menu.
 
 ### FSM Engine
 
@@ -163,8 +167,9 @@ press vs release, tap vs hold, and compound gestures.
 |----------|--------|
 | Performance (immediate) | `EVT_A_PRESS`, `EVT_B_PRESS`, `EVT_CV_RISE`, `EVT_CV_FALL` |
 | Configuration (on release) | `EVT_A_TAP`, `EVT_A_RELEASE`, `EVT_B_TAP`, `EVT_B_RELEASE` |
-| Hold (threshold reached) | `EVT_A_HOLD`, `EVT_B_HOLD` |
-| Compound gestures | `EVT_MENU_TOGGLE`, `EVT_MODE_NEXT` |
+| Hold (solo A only) | `EVT_A_HOLD` (only fires if B not pressed) |
+| Hold (B always) | `EVT_B_HOLD` |
+| Gestures | `EVT_MENU_TOGGLE` (A+B hold), `EVT_MODE_NEXT` (solo A hold+release) |
 
 **Timing Constants**:
 ```c

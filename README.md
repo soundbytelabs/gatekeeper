@@ -22,15 +22,16 @@ This project is designed as a reference for those learning synth/modular DIY and
   Robust button state detection with rising and falling edge detection.
 
 - **Configuration Gestures:**
-  - **Menu Toggle:** Hold Button A, then hold Button B (500ms each) to enter/exit menu
-  - **Mode Change:** Hold Button B, then hold Button A (500ms each) to cycle modes
+  - **Menu Enter:** Hold Button A, then hold Button B (500ms each) to enter menu
+  - **Menu Exit:** Hold Button A (500ms) to exit menu immediately
+  - **Mode Change:** Hold Button A (500ms), then release to cycle modes
   - **Menu Navigation:** Tap Button A to change page, tap Button B to cycle values
 
 - **Hardware Abstraction Layer (HAL):**
   Clean interface for hardware access, enabling comprehensive unit testing on the host machine.
 
 - **Unit Testing:**
-  150 tests using the Unity framework verify functionality without hardware.
+  152 tests using the Unity framework verify functionality without hardware.
 
 - **Native Simulator:**
   Interactive terminal UI or headless JSON output for development without hardware.
@@ -41,8 +42,8 @@ This project is designed as a reference for those learning synth/modular DIY and
 
 | Resource | Size | Usage |
 |----------|------|-------|
-| Flash | 8 KB | ~84% used |
-| SRAM | 512 B | ~39% used |
+| Flash | 8 KB | ~87% used |
+| SRAM | 512 B | ~38% used |
 | EEPROM | 512 B | 17 bytes used (~3%) |
 
 **Pin Assignment:**
