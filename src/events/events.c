@@ -37,6 +37,7 @@ Event event_processor_update(EventProcessor *ep, const EventInput *input) {
     if (a_pressed && !a_was_pressed) {
         ep->a_press_time = now;
         STATUS_CLR(ep->status, EP_A_HOLD);
+        ep->ext_status &= ~EP_B_TOUCHED_DURING_A;  // Clear B-touched flag on new A press
         event = EVT_A_PRESS;
     }
     // Falling edge (release)
@@ -46,15 +47,27 @@ Event event_processor_update(EventProcessor *ep, const EventInput *input) {
             // Was short press - it's a tap
             event = EVT_A_TAP;
         } else {
-            event = EVT_A_RELEASE;
+            // Was a hold - check if it was a solo hold (no B touched, no compound fired)
+            if (!(ep->ext_status & EP_B_TOUCHED_DURING_A) &&
+                !(ep->ext_status & EP_COMPOUND_FIRED)) {
+                // Solo A:hold → release = mode change (perform) or menu exit (menu)
+                event = EVT_MODE_NEXT;
+            } else {
+                event = EVT_A_RELEASE;
+            }
         }
         STATUS_CLR(ep->status, EP_A_HOLD);
     }
     // Hold detection (while still pressed)
+    // Only emit EVT_A_HOLD for solo holds (B not pressed)
+    // This allows menu exit on immediate hold without waiting for release
     else if (a_pressed && !STATUS_ANY(ep->status, EP_A_HOLD)) {
         if (now - ep->a_press_time >= EP_HOLD_THRESHOLD_MS) {
             STATUS_SET(ep->status, EP_A_HOLD);
-            event = EVT_A_HOLD;
+            // Only emit hold event if B is not pressed (solo hold)
+            if (!STATUS_ANY(ep->status, EP_B_PRESSED)) {
+                event = EVT_A_HOLD;
+            }
         }
     }
 
@@ -66,6 +79,10 @@ Event event_processor_update(EventProcessor *ep, const EventInput *input) {
     if (b_pressed && !b_was_pressed) {
         ep->b_press_time = now;
         STATUS_CLR(ep->status, EP_B_HOLD);
+        // Track B press during A hold (cancels solo A:hold gesture)
+        if (STATUS_ANY(ep->status, EP_A_HOLD)) {
+            ep->ext_status |= EP_B_TOUCHED_DURING_A;
+        }
         // Only set event if we don't already have one from A
         if (event == EVT_NONE) {
             event = EVT_B_PRESS;
@@ -93,9 +110,9 @@ Event event_processor_update(EventProcessor *ep, const EventInput *input) {
         }
     }
 
-    // === Compound gesture detection (order-sensitive) ===
-    // Menu Enter: A pressed first, then B held for threshold
-    // Mode Change: B pressed first, then A held for threshold
+    // === Compound gesture detection ===
+    // Menu Enter: A held first, then B reaches hold threshold
+    // (EVT_MODE_NEXT is now generated on A:hold release without B touch)
     //
     // Only fire once per gesture (cleared when both buttons released)
     if (!(ep->ext_status & EP_COMPOUND_FIRED)) {
@@ -104,13 +121,6 @@ Event event_processor_update(EventProcessor *ep, const EventInput *input) {
             STATUS_ANY(ep->status, EP_A_PRESSED) &&
             ep->a_press_time < ep->b_press_time) {
             event = EVT_MENU_TOGGLE;
-            ep->ext_status |= EP_COMPOUND_FIRED;
-        }
-        // A just reached hold while B is pressed, and B was pressed first
-        else if (event == EVT_A_HOLD &&
-                 STATUS_ANY(ep->status, EP_B_PRESSED) &&
-                 ep->b_press_time < ep->a_press_time) {
-            event = EVT_MODE_NEXT;
             ep->ext_status |= EP_COMPOUND_FIRED;
         }
     }

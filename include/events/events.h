@@ -43,9 +43,9 @@ typedef enum {
     EVT_A_HOLD,             // Button A held past threshold
     EVT_B_HOLD,             // Button B held past threshold
 
-    // === Compound gesture events (order-sensitive) ===
+    // === Compound/gesture events ===
     EVT_MENU_TOGGLE,        // A:hold + B:hold (A first, then B reaches threshold)
-    EVT_MODE_NEXT,          // B:hold + A:hold (B first, then A reaches threshold)
+    EVT_MODE_NEXT,          // A:hold (solo) release (no B pressed during hold)
 
     // === Timing events ===
     EVT_TIMEOUT,            // Generic timeout (context-dependent)
@@ -80,7 +80,8 @@ typedef enum {
 #define EP_CV_LAST      (1 << 7)
 
 // Extended status flags (separate byte)
-#define EP_COMPOUND_FIRED (1 << 0)  // Compound gesture already fired this press
+#define EP_COMPOUND_FIRED       (1 << 0)  // Compound gesture already fired this press
+#define EP_B_TOUCHED_DURING_A   (1 << 1)  // B was pressed while A was held
 
 /**
  * Timing thresholds (milliseconds)

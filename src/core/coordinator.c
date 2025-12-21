@@ -19,6 +19,7 @@
 
 static void action_enter_menu(void);
 static void action_exit_menu(void);
+static void action_exit_menu_on_hold(void);
 static void action_next_mode(void);
 static void action_next_page(void);
 static void action_cycle_value(void);
@@ -65,17 +66,17 @@ static const State menu_states[] PROGMEM_ATTR = {
 
 // Top-level transitions
 static const Transition top_transitions[] PROGMEM_ATTR = {
-    // Toggle menu: A:hold + B:hold gesture (same to enter and exit)
+    // Enter menu: A:hold + B:hold gesture
     { TOP_PERFORM, EVT_MENU_TOGGLE, TOP_MENU,    action_enter_menu },
-    { TOP_MENU,    EVT_MENU_TOGGLE, TOP_PERFORM, action_exit_menu },
 
-    // Exit menu: timeout
+    // Exit menu: A:hold (solo) fires immediately on hold threshold
+    { TOP_MENU,    EVT_A_HOLD,      TOP_PERFORM, action_exit_menu_on_hold },
     { TOP_MENU,    EVT_TIMEOUT,     TOP_PERFORM, action_exit_menu },
 };
 
-// Mode transitions (mode change gesture works from any mode)
+// Mode transitions (mode change gesture works from any mode in PERFORM)
 static const Transition mode_transitions[] PROGMEM_ATTR = {
-    // B:hold + A:hold = advance to next mode
+    // A:hold (solo) release = advance to next mode
     { FSM_ANY_STATE, EVT_MODE_NEXT, FSM_NO_TRANSITION, action_next_mode },
 };
 
@@ -113,6 +114,20 @@ static void action_exit_menu(void) {
         g_coord->settings->mode = fsm_get_state(&g_coord->mode_fsm);
         app_init_save_settings(g_coord->settings);
     }
+}
+
+static void action_exit_menu_on_hold(void) {
+    if (!g_coord) return;
+
+    // Save settings on menu exit
+    if (g_coord->settings) {
+        g_coord->settings->mode = fsm_get_state(&g_coord->mode_fsm);
+        app_init_save_settings(g_coord->settings);
+    }
+
+    // Set compound flag to prevent EVT_MODE_NEXT from firing on release
+    // (we don't want menu exit to also trigger mode change)
+    g_coord->events.ext_status |= EP_COMPOUND_FIRED;
 }
 
 static void action_next_mode(void) {
