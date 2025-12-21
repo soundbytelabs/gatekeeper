@@ -41,7 +41,7 @@ This project is designed as a reference for those learning synth/modular DIY and
 
 | Resource | Size | Usage |
 |----------|------|-------|
-| Flash | 8 KB | ~94% used |
+| Flash | 8 KB | ~84% used |
 | SRAM | 512 B | ~39% used |
 | EEPROM | 512 B | Settings persistence |
 

@@ -350,8 +350,8 @@ TEST(CoordinatorTests, TestMenuValueCyclesTriggerPulse) {
     run_for_ms(50);
     TEST_ASSERT_EQUAL(PAGE_TRIGGER_PULSE_LEN, coordinator_get_page(&coord));
 
-    // Initial value is default (index 2 = 50ms)
-    TEST_ASSERT_EQUAL(2, settings.trigger_pulse_idx);
+    // Initial value is default (index 0 = 10ms)
+    TEST_ASSERT_EQUAL(0, settings.trigger_pulse_idx);
 
     // B tap cycles value
     press_button_b();
@@ -359,8 +359,8 @@ TEST(CoordinatorTests, TestMenuValueCyclesTriggerPulse) {
     release_button_b();
     run_for_ms(50);
 
-    // Value should have cycled (2 -> 3)
-    TEST_ASSERT_EQUAL(3, settings.trigger_pulse_idx);
+    // Value should have cycled (0 -> 1)
+    TEST_ASSERT_EQUAL(1, settings.trigger_pulse_idx);
 }
 
 TEST(CoordinatorTests, TestMenuValueWrapsAround) {

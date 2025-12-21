@@ -31,6 +31,7 @@ typedef struct {
     bool in_menu;                   // Currently in menu mode
     uint8_t current_mode;           // Current mode (for color lookup)
     uint8_t current_page;           // Current page (when in menu)
+    uint8_t last_setting_value;     // Previous menu setting value (for change detection)
 } LEDFeedbackController;
 
 /**

@@ -95,8 +95,8 @@ else()
     set(PROGRAMMER_PORT "/dev/ttyACM1" CACHE STRING "Programmer serial port (e.g., /dev/ttyACM0, /dev/ttyUSB0)")
 
     set(CMAKE_C_FLAGS "-mmcu=${MCU} -DF_CPU=${F_CPU} -Os -Wall -Wextra -Werror")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffunction-sections -fdata-sections -fshort-enums")
-    set(CMAKE_EXE_LINKER_FLAGS "-mmcu=${MCU} -Wl,--gc-sections -s")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffunction-sections -fdata-sections -fshort-enums -flto")
+    set(CMAKE_EXE_LINKER_FLAGS "-mmcu=${MCU} -Wl,--gc-sections -flto")
 
     # Collect source files recursively
     file(GLOB_RECURSE SOURCES 

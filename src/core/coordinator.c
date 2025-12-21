@@ -305,20 +305,31 @@ void coordinator_update(Coordinator *coord) {
     }
 
     // Update current mode (run mode handler)
-    // In perform mode, process input through mode handler
-    // Button B is the primary button (controls gate/trigger output)
+    // Signal processing runs in both PERFORM and MENU modes
+    // - PERFORM: CV input OR button B (and button A for some modes)
+    // - MENU: CV input only (buttons used for menu navigation)
+    ModeState mode = (ModeState)fsm_get_state(&coord->mode_fsm);
+    bool input_state;
+
     if (fsm_get_state(&coord->top_fsm) == TOP_PERFORM) {
-        ModeState mode = (ModeState)fsm_get_state(&coord->mode_fsm);
-        bool input_state = event_processor_b_pressed(&coord->events);
+        // In perform mode: CV OR button B
+        // Suppress B trigger when A is held (menu-enter gesture in progress)
+        bool b_triggers = event_processor_b_pressed(&coord->events) &&
+                          !event_processor_a_pressed(&coord->events);
+        input_state = cv_state || b_triggers;
 
         // In Gate mode with gate_a_mode enabled, button A also triggers
+        // (only when not already holding for menu gesture)
         if (mode == MODE_GATE && coord->settings &&
             coord->settings->gate_a_mode == GATE_A_MODE_MANUAL) {
             input_state = input_state || event_processor_a_pressed(&coord->events);
         }
-
-        mode_handler_process(mode, &coord->mode_ctx, input_state, &coord->output_state);
+    } else {
+        // In menu mode: CV only (buttons reserved for menu navigation)
+        input_state = cv_state;
     }
+
+    mode_handler_process(mode, &coord->mode_ctx, input_state, &coord->output_state);
 
     // Clear global pointer
     g_coord = NULL;
