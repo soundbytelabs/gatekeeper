@@ -31,6 +31,7 @@ endif()
 # Collect application sources (exclude AVR main.c)
 file(GLOB_RECURSE APP_SOURCES
     "${CMAKE_SOURCE_DIR}/src/*.c"
+    "${CMAKE_SOURCE_DIR}/lib/*.c"
 )
 # Remove main.c - we use sim_main.c instead
 list(FILTER APP_SOURCES EXCLUDE REGEX "main\\.c$")
@@ -60,7 +61,8 @@ add_executable(gatekeeper-sim
 )
 
 target_include_directories(gatekeeper-sim PRIVATE
-    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}/lib
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 

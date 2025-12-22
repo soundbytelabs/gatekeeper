@@ -61,7 +61,20 @@ LED X and Y are Neopixels connected to PB0.
 
 ## Code Architecture
 
-The firmware is organized into modules:
+The firmware is organized into reusable library code (`lib/`) and application-specific code (`src/`), with headers alongside sources:
+
+```
+lib/                    src/
+├── events/             ├── config/
+├── fsm/                ├── core/
+├── hardware/           ├── hardware/
+├── input/              ├── modes/
+├── output/             ├── output/
+└── utility/            ├── app_init.c/.h
+                        └── main.c
+```
+
+Key modules:
 
 | Module | Purpose |
 |--------|---------|

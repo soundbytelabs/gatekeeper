@@ -58,7 +58,8 @@ project(gatekeeper
 set(PROJECT_DISPLAY_NAME "Gatekeeper")
 
 # Include directories
-include_directories(include)
+include_directories(src)
+include_directories(lib)
 
 if(BUILD_TESTS)
     # Test build configuration
@@ -99,9 +100,11 @@ else()
     set(CMAKE_EXE_LINKER_FLAGS "-mmcu=${MCU} -Wl,--gc-sections -flto")
 
     # Collect source files recursively
-    file(GLOB_RECURSE SOURCES 
+    file(GLOB_RECURSE SOURCES
         "src/*.c"
         "src/**/*.c"
+        "lib/*.c"
+        "lib/**/*.c"
     )
 
     # Source files
