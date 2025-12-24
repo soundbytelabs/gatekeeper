@@ -16,7 +16,8 @@
 // Command type names
 static const char *cmd_type_names[] = {
     "unknown", "button", "cv_manual", "cv_lfo", "cv_envelope",
-    "cv_gate", "cv_trigger", "cv_wavetable", "reset", "quit"
+    "cv_gate", "cv_trigger", "cv_wavetable", "fault_adc", "fault_eeprom",
+    "reset", "quit"
 };
 
 const char* command_type_str(CommandType type) {
@@ -176,6 +177,75 @@ static CommandResult handle_cv_trigger(CVSource *cv_source) {
     return result;
 }
 
+static CommandResult handle_fault_adc(cJSON *json) {
+    CommandResult result = { CMD_FAULT_ADC, false, false, "" };
+
+    cJSON *mode = cJSON_GetObjectItemCaseSensitive(json, "mode");
+    if (!cJSON_IsString(mode) || !mode->valuestring) {
+        snprintf(result.error, sizeof(result.error), "missing 'mode' field");
+        return result;
+    }
+
+    // Parse mode string
+    if (strcmp(mode->valuestring, "normal") == 0) {
+        sim_adc_set_mode(SIM_ADC_NORMAL);
+        result.success = true;
+    } else if (strcmp(mode->valuestring, "timeout") == 0) {
+        sim_adc_set_mode(SIM_ADC_TIMEOUT);
+        result.success = true;
+    } else if (strcmp(mode->valuestring, "stuck_low") == 0) {
+        sim_adc_set_mode(SIM_ADC_STUCK_LOW);
+        result.success = true;
+    } else if (strcmp(mode->valuestring, "stuck_high") == 0) {
+        sim_adc_set_mode(SIM_ADC_STUCK_HIGH);
+        result.success = true;
+    } else if (strcmp(mode->valuestring, "noisy") == 0) {
+        sim_adc_set_mode(SIM_ADC_NOISY);
+        // Optional amplitude parameter
+        cJSON *amplitude = cJSON_GetObjectItemCaseSensitive(json, "amplitude");
+        if (cJSON_IsNumber(amplitude)) {
+            int amp = (int)amplitude->valuedouble;
+            if (amp < 0) amp = 0;
+            if (amp > 127) amp = 127;
+            sim_adc_set_noise_amplitude((uint8_t)amp);
+        }
+        result.success = true;
+    } else {
+        snprintf(result.error, sizeof(result.error), "invalid mode: %s", mode->valuestring);
+    }
+
+    return result;
+}
+
+static CommandResult handle_fault_eeprom(cJSON *json) {
+    CommandResult result = { CMD_FAULT_EEPROM, false, false, "" };
+
+    cJSON *mode = cJSON_GetObjectItemCaseSensitive(json, "mode");
+    if (!cJSON_IsString(mode) || !mode->valuestring) {
+        snprintf(result.error, sizeof(result.error), "missing 'mode' field");
+        return result;
+    }
+
+    // Parse mode string
+    if (strcmp(mode->valuestring, "normal") == 0) {
+        sim_eeprom_set_mode(SIM_EEPROM_NORMAL);
+        result.success = true;
+    } else if (strcmp(mode->valuestring, "write_fail") == 0) {
+        sim_eeprom_set_mode(SIM_EEPROM_WRITE_FAIL);
+        result.success = true;
+    } else if (strcmp(mode->valuestring, "read_ff") == 0) {
+        sim_eeprom_set_mode(SIM_EEPROM_READ_FF);
+        result.success = true;
+    } else if (strcmp(mode->valuestring, "corrupt") == 0) {
+        sim_eeprom_set_mode(SIM_EEPROM_CORRUPT);
+        result.success = true;
+    } else {
+        snprintf(result.error, sizeof(result.error), "invalid mode: %s", mode->valuestring);
+    }
+
+    return result;
+}
+
 // =============================================================================
 // Main Entry Point
 // =============================================================================
@@ -218,6 +288,10 @@ CommandResult command_handler_execute(const char *json_str, CVSource *cv_source)
         result = handle_cv_gate(json, cv_source);
     } else if (strcmp(cmd->valuestring, "cv_trigger") == 0) {
         result = handle_cv_trigger(cv_source);
+    } else if (strcmp(cmd->valuestring, "fault_adc") == 0) {
+        result = handle_fault_adc(json);
+    } else if (strcmp(cmd->valuestring, "fault_eeprom") == 0) {
+        result = handle_fault_eeprom(json);
     } else if (strcmp(cmd->valuestring, "reset") == 0) {
         sim_reset_time();
         cv_source_init(cv_source);

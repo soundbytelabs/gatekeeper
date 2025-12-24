@@ -140,6 +140,25 @@ The simulator runs the application logic on your host machine with multiple outp
 ./build/sim/sim/gatekeeper-sim --script test.gks  # Run test script
 ```
 
+**Integration Tests:**
+
+Run all simulator integration tests:
+
+```bash
+./scripts/run_sim_tests.sh
+```
+
+**Fault Injection:**
+
+The simulator supports hardware fault injection for testing error handling:
+
+```bash
+# In script files (.gks):
+0  fault adc timeout       # ADC returns mid-scale
+0  fault eeprom write_fail # EEPROM writes silently fail
+0  fault adc normal        # Clear fault
+```
+
 **JSON Output:**
 
 The `--json` flag outputs state as [NDJSON](https://github.com/ndjson/ndjson-spec) (Newline Delimited JSON) - one JSON object per line. Schema defined in `sim/schema/sim_state_v1.json`.
@@ -149,6 +168,8 @@ The `--json` flag outputs state as [NDJSON](https://github.com/ndjson/ndjson-spe
 ```
 
 This enables piping to `jq`, logging, or building custom frontends.
+
+See [docs/SIMULATOR.md](docs/SIMULATOR.md) for complete documentation including script language reference and socket protocol.
 
 ### Flashing
 
