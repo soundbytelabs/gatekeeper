@@ -4,7 +4,7 @@
 
 A digital gate/trigger processor for Eurorack modular synthesizers. Gatekeeper has a two-state (0 or 5V) output driven by push button and CV input. The input response is configurable via menu settings. 
 
-This project is designed as a reference for those learning synth/modular DIY and/or embedded development on AVR microcontrollers.
+This project is designed as a reference for hackers of all types. We assume hardware and coding knowledge, but those with a strong desire to learn and build will find this an approachable beginner hardware project.
 
 ## Features
 
