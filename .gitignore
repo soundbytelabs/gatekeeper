@@ -19,3 +19,6 @@ CMakeUserPresets.json
 .planning/
 
 hardware/gatekeeper/gatekeeper-backups/
+*.lck
+
+fp-lib-table
