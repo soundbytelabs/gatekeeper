@@ -131,45 +131,7 @@ cmake --preset sim && cmake --build --preset sim
 
 ### Native Simulator
 
-The simulator runs the application logic on your host machine with multiple output modes:
-
-```bash
-./build/sim/sim/gatekeeper-sim              # Interactive terminal UI
-./build/sim/sim/gatekeeper-sim --json       # JSON output (NDJSON format)
-./build/sim/sim/gatekeeper-sim --batch      # Plain text (for scripts/CI)
-./build/sim/sim/gatekeeper-sim --script test.gks  # Run test script
-```
-
-**Integration Tests:**
-
-Run all simulator integration tests:
-
-```bash
-./scripts/run_sim_tests.sh
-```
-
-**Fault Injection:**
-
-The simulator supports hardware fault injection for testing error handling:
-
-```bash
-# In script files (.gks):
-0  fault adc timeout       # ADC returns mid-scale
-0  fault eeprom write_fail # EEPROM writes silently fail
-0  fault adc normal        # Clear fault
-```
-
-**JSON Output:**
-
-The `--json` flag outputs state as [NDJSON](https://github.com/ndjson/ndjson-spec) (Newline Delimited JSON) - one JSON object per line. Schema defined in `sim/schema/sim_state_v1.json`.
-
-```json
-{"version":1,"timestamp_ms":1234,"state":{"top":"PERFORM","mode":"GATE","page":null},"inputs":{"button_a":true,"button_b":false,"cv_in":false},"outputs":{"signal":true},"leds":[{"index":0,"name":"mode","r":0,"g":255,"b":0},{"index":1,"name":"activity","r":255,"g":255,"b":255}],"events":[]}
-```
-
-This enables piping to `jq`, logging, or building custom frontends.
-
-See [docs/SIMULATOR.md](docs/SIMULATOR.md) for complete documentation including script language reference and socket protocol.
+The simulator is under construction.
 
 ### Flashing
 
